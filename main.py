@@ -25,6 +25,13 @@ def save_config(config):
 config = load_config()
 TOKEN = config.get("token", "").strip()
 
+# --- Token validation at startup ---
+if not TOKEN:
+    TOKEN = input(Fore.YELLOW + "No valid token found. Enter your Discord bot token: " + Style.RESET_ALL).strip()
+    config["token"] = TOKEN
+    save_config(config)
+    print(Fore.GREEN + "✅ Token saved to config.json" + Style.RESET_ALL)
+
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
@@ -142,7 +149,6 @@ async def run_bot():
             print(Fore.RED + f"⚠️ Connection lost: {e}. Reconnecting..." + Style.RESET_ALL)
             await asyncio.sleep(5)
 
-    # Ensure aiohttp connector is closed
     if not client.is_closed():
         await client.close()
 
