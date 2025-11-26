@@ -129,7 +129,7 @@ async def send_announcement():
                     print(Fore.RED + "❌ Bot lacks permission to send messages in this channel." + Style.RESET_ALL)
                     return
                 print(Fore.CYAN + f"Sending to {guild.name} -> {channel.name}" + Style.RESET_ALL)
-                await channel.send(f"📢 Announcement:\n{message}")
+                await channel.send(f"{message}")
                 print(Fore.GREEN + "✅ Announcement sent successfully." + Style.RESET_ALL)
             else:
                 print(Fore.RED + "❌ Channel ID not found in that server." + Style.RESET_ALL)
