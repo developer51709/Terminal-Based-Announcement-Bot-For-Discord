@@ -44,24 +44,30 @@ def menu():
             break
         elif choice == "2":
             temp_client = discord.Client(intents=intents)
+
             @temp_client.event
             async def on_ready():
                 print("\nConnected. Servers:")
                 for i, guild in enumerate(temp_client.guilds, start=1):
                     print(f"{i}. {guild.name} (ID: {guild.id})")
-                try:
-                    selection = int(input("\nChoose a server number to list its channels: ").strip())
-                    if 1 <= selection <= len(temp_client.guilds):
-                        guild = temp_client.guilds[selection - 1]
-                        print(f"\nChannels in {guild.name}:")
-                        for channel in guild.channels:
-                            if isinstance(channel, discord.TextChannel):
-                                print(f"- {channel.name} (ID: {channel.id})")
-                    else:
-                        print("Invalid selection.")
-                except ValueError:
-                    print("Invalid input.")
+
+                while True:
+                    try:
+                        selection = int(input("\nChoose a server number (0 to go back): ").strip())
+                        if selection == 0:
+                            break
+                        if 1 <= selection <= len(temp_client.guilds):
+                            guild = temp_client.guilds[selection - 1]
+                            print(f"\nChannels in {guild.name}:")
+                            for channel in guild.channels:
+                                if isinstance(channel, discord.TextChannel):
+                                    print(f"- {channel.name} (ID: {channel.id})")
+                        else:
+                            print("Invalid selection.")
+                    except ValueError:
+                        print("Invalid input.")
                 await temp_client.close()
+
             temp_client.run(TOKEN)
         elif choice == "3":
             server_id = int(input("Enter Server ID: ").strip())
