@@ -35,7 +35,7 @@ Built by [developer51709](https://github.com/developer51709), this bot emphasize
    
 3. **Run the bot**
    ```bash
-   python bot.py
+   python main.py
 
 4. **Enter your bot token when prompted.**
 
