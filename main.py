@@ -17,7 +17,8 @@ def banner():
  |____/|_|___/\___\___/|_|  \__,_|  
 
    Discord Announcement Bot
-    """)
+   By: developer51709
+   """)
 
 def update():
     print("\nChecking for updates...")
