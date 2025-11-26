@@ -61,7 +61,9 @@ If permissions are missing, the bot will warn you before attempting to send.
 ## 📜 Future Improvements
 - Scheduled announcements (send at a specific time)
 - Rich embeds for styled announcements
-- Config file for default server/channel IDs
+- Config file to store the bot token
+- Error logging
+- Multi‑channel broadcast (send the same announcement to multiple channels)
 
 ---
 
