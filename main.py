@@ -149,7 +149,7 @@ async def main_menu():
         os.system("clear")
         banner()
         print(Fore.CYAN + "=== Discord Bot Menu ===" + Style.RESET_ALL)
-        print(Fore.YELLOW + "1." + Style.RESET_ALL + " List servers and channels (pick channel to announce)")
+        print(Fore.YELLOW + "1." + Style.RESET_ALL + " List servers and channels")
         print(Fore.YELLOW + "2." + Style.RESET_ALL + " Send announcement (by IDs)")
         print(Fore.YELLOW + "3." + Style.RESET_ALL + " Update from GitHub")
         print(Fore.YELLOW + "4." + Style.RESET_ALL + " Exit")
