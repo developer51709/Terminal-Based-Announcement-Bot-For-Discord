@@ -111,4 +111,15 @@ async def on_ready():
     print(Fore.GREEN + f"\n✅ Bot connected as {client.user}" + Style.RESET_ALL)
     await main_menu()
 
-asyncio.run(client.start(TOKEN))
+# --- Silent Auto-Reconnect Loop ---
+async def run_bot():
+    while True:
+        try:
+            await client.start(TOKEN)
+        except (discord.ConnectionClosed, discord.HTTPException, Exception) as e:
+            # Silent auto-reconnect: log minimal info and retry
+            print(Fore.RED + f"⚠️ Connection lost: {e}. Reconnecting..." + Style.RESET_ALL)
+            await asyncio.sleep(5)  # wait before retrying
+
+# Entry point
+asyncio.run(run_bot())
