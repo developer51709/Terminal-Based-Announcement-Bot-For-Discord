@@ -2,23 +2,37 @@ import discord
 import os
 import subprocess
 import asyncio
+import json
 import signal
 from colorama import Fore, Style, init
 
-# Initialize colorama for cross-platform colored output
+# Initialize colorama
 init(autoreset=True)
 
-TOKEN = input(Fore.YELLOW + "Enter your Discord bot token: " + Style.RESET_ALL).strip()
+CONFIG_FILE = "config.json"
+
+def load_config():
+    if not os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "w") as f:
+            json.dump({"token": ""}, f)
+    with open(CONFIG_FILE, "r") as f:
+        return json.load(f)
+
+def save_config(config):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f, indent=4)
+
+config = load_config()
+TOKEN = config.get("token", "").strip()
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
-# --- Graceful Shutdown Handler ---
 shutdown_event = asyncio.Event()
 
 def shutdown_handler():
-    print(Fore.CYAN + "\n🔌 Graceful shutdown initiated…" + Style.RESET_ALL)
+    print(Fore.CYAN + "\n🔌 Shutdown initiated…" + Style.RESET_ALL)
     shutdown_event.set()
 
 def banner():
@@ -45,23 +59,7 @@ async def list_servers():
     print(Fore.CYAN + "\nConnected. Servers:" + Style.RESET_ALL)
     for i, guild in enumerate(client.guilds, start=1):
         print(Fore.YELLOW + f"{i}. " + Style.RESET_ALL + f"{guild.name} (ID: {guild.id})")
-
-    while True:
-        try:
-            selection = int(await asyncio.to_thread(input, Fore.GREEN + "\nChoose a server number (0 to go back): " + Style.RESET_ALL))
-            if selection == 0:
-                break
-            if 1 <= selection <= len(client.guilds):
-                guild = client.guilds[selection - 1]
-                print(Fore.CYAN + f"\nChannels in {guild.name}:" + Style.RESET_ALL)
-                for channel in guild.channels:
-                    if isinstance(channel, discord.TextChannel):
-                        print(Fore.YELLOW + f"- {channel.name} (ID: {channel.id})" + Style.RESET_ALL)
-                await asyncio.to_thread(input, Fore.GREEN + "\nPress Enter to return to server list..." + Style.RESET_ALL)
-            else:
-                print(Fore.RED + "Invalid selection." + Style.RESET_ALL)
-        except ValueError:
-            print(Fore.RED + "Invalid input." + Style.RESET_ALL)
+    await asyncio.to_thread(input, Fore.GREEN + "\nPress Enter to return to menu..." + Style.RESET_ALL)
 
 async def send_announcement():
     try:
@@ -77,7 +75,6 @@ async def send_announcement():
                 if not perms.send_messages:
                     print(Fore.RED + "❌ Bot lacks permission to send messages in this channel." + Style.RESET_ALL)
                     return
-
                 print(Fore.CYAN + f"Sending to {guild.name} -> {channel.name}" + Style.RESET_ALL)
                 await channel.send(f"📢 Announcement:\n{message}")
                 print(Fore.GREEN + "✅ Announcement sent successfully." + Style.RESET_ALL)
@@ -88,6 +85,12 @@ async def send_announcement():
     except ValueError:
         print(Fore.RED + "❌ Invalid input." + Style.RESET_ALL)
 
+async def change_token():
+    new_token = await asyncio.to_thread(input, Fore.YELLOW + "Enter new bot token: " + Style.RESET_ALL)
+    config["token"] = new_token.strip()
+    save_config(config)
+    print(Fore.GREEN + "✅ Token updated in config.json. Restart bot to apply changes." + Style.RESET_ALL)
+
 async def main_menu():
     while True:
         os.system("clear")
@@ -97,6 +100,7 @@ async def main_menu():
         print(Fore.YELLOW + "2." + Style.RESET_ALL + " Send announcement (by IDs)")
         print(Fore.YELLOW + "3." + Style.RESET_ALL + " Update from GitHub")
         print(Fore.YELLOW + "4." + Style.RESET_ALL + " Exit")
+        print(Fore.YELLOW + "5." + Style.RESET_ALL + " Change bot token")
 
         choice = await asyncio.to_thread(input, Fore.GREEN + "Select an option: " + Style.RESET_ALL)
 
@@ -112,6 +116,9 @@ async def main_menu():
             shutdown_event.set()
             await client.close()
             break
+        elif choice == "5":
+            await change_token()
+            await asyncio.to_thread(input, Fore.YELLOW + "\nPress Enter to return to menu..." + Style.RESET_ALL)
         else:
             print(Fore.RED + "❌ Invalid option. Try again." + Style.RESET_ALL)
 
@@ -120,10 +127,8 @@ async def on_ready():
     print(Fore.GREEN + f"\n✅ Bot connected as {client.user}" + Style.RESET_ALL)
     await main_menu()
 
-# --- Silent Auto-Reconnect with Graceful Shutdown ---
 async def run_bot():
     loop = asyncio.get_running_loop()
-    # Register signal handlers for Ctrl+C / termination
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, shutdown_handler)
 
