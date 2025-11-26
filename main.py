@@ -63,10 +63,37 @@ def update():
         print(Fore.RED + f"❌ Update failed: {e}" + Style.RESET_ALL)
 
 async def list_servers():
+    if not client.guilds:
+        print(Fore.RED + "❌ No servers available. Make sure the bot is invited to at least one server." + Style.RESET_ALL)
+        await asyncio.to_thread(input, Fore.GREEN + "\nPress Enter to return to menu..." + Style.RESET_ALL)
+        return
+
     print(Fore.CYAN + "\nConnected. Servers:" + Style.RESET_ALL)
     for i, guild in enumerate(client.guilds, start=1):
         print(Fore.YELLOW + f"{i}. " + Style.RESET_ALL + f"{guild.name} (ID: {guild.id})")
-    await asyncio.to_thread(input, Fore.GREEN + "\nPress Enter to return to menu..." + Style.RESET_ALL)
+
+    while True:
+        try:
+            selection = int(await asyncio.to_thread(
+                input,
+                Fore.GREEN + "\nChoose a server number (0 to go back): " + Style.RESET_ALL
+            ))
+            if selection == 0:
+                break
+            if 1 <= selection <= len(client.guilds):
+                guild = client.guilds[selection - 1]
+                print(Fore.CYAN + f"\nChannels in {guild.name}:" + Style.RESET_ALL)
+                for channel in guild.channels:
+                    if isinstance(channel, discord.TextChannel):
+                        print(Fore.YELLOW + f"- {channel.name} (ID: {channel.id})" + Style.RESET_ALL)
+                await asyncio.to_thread(
+                    input,
+                    Fore.GREEN + "\nPress Enter to return to server list..." + Style.RESET_ALL
+                )
+            else:
+                print(Fore.RED + "❌ Invalid selection." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "❌ Invalid input." + Style.RESET_ALL)
 
 async def send_announcement():
     try:
