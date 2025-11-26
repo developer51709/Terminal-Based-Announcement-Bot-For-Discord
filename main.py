@@ -2,6 +2,7 @@ import discord
 import os
 import subprocess
 import asyncio
+import signal
 from colorama import Fore, Style, init
 
 # Initialize colorama for cross-platform colored output
@@ -12,6 +13,13 @@ TOKEN = input(Fore.YELLOW + "Enter your Discord bot token: " + Style.RESET_ALL).
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
+
+# --- Graceful Shutdown Handler ---
+shutdown_event = asyncio.Event()
+
+def shutdown_handler():
+    print(Fore.CYAN + "\n🔌 Graceful shutdown initiated…" + Style.RESET_ALL)
+    shutdown_event.set()
 
 def banner():
     print(Fore.CYAN + r"""
@@ -101,6 +109,7 @@ async def main_menu():
             await asyncio.to_thread(input, Fore.YELLOW + "\nPress Enter to return to menu..." + Style.RESET_ALL)
         elif choice == "4":
             print(Fore.CYAN + "Exiting…" + Style.RESET_ALL)
+            shutdown_event.set()
             await client.close()
             break
         else:
@@ -111,15 +120,23 @@ async def on_ready():
     print(Fore.GREEN + f"\n✅ Bot connected as {client.user}" + Style.RESET_ALL)
     await main_menu()
 
-# --- Silent Auto-Reconnect Loop ---
+# --- Silent Auto-Reconnect with Graceful Shutdown ---
 async def run_bot():
-    while True:
+    loop = asyncio.get_running_loop()
+    # Register signal handlers for Ctrl+C / termination
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, shutdown_handler)
+
+    while not shutdown_event.is_set():
         try:
             await client.start(TOKEN)
         except (discord.ConnectionClosed, discord.HTTPException, Exception) as e:
-            # Silent auto-reconnect: log minimal info and retry
+            if shutdown_event.is_set():
+                break
             print(Fore.RED + f"⚠️ Connection lost: {e}. Reconnecting..." + Style.RESET_ALL)
-            await asyncio.sleep(5)  # wait before retrying
+            await asyncio.sleep(5)
+
+    print(Fore.CYAN + "🔒 Bot shut down successfully." + Style.RESET_ALL)
 
 # Entry point
 asyncio.run(run_bot())
