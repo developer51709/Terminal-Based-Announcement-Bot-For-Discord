@@ -52,7 +52,7 @@ pip install -r requirements.txt
     git clone https://github.com/developer51709/Terminal-Based-Announcement-Bot-For-Discord.git
     cd Terminal-Based-Announcement-Bot-For-Discord
 
-2. Create a bot in the Discord Developer Portal and copy its token.
+2. Create a bot in the [Discord Developer Portal](https://discord.com/developers/applications) and copy its token.
 
 3. Run the bot:
    ```bash
