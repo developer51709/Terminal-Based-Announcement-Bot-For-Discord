@@ -83,15 +83,34 @@ async def list_servers():
             if 1 <= selection <= len(client.guilds):
                 guild = client.guilds[selection - 1]
                 print(Fore.CYAN + f"\nChannels in {guild.name}:" + Style.RESET_ALL)
-                for channel in guild.channels:
-                    if isinstance(channel, discord.TextChannel):
-                        print(Fore.YELLOW + f"- {channel.name} (ID: {channel.id})" + Style.RESET_ALL)
-                await asyncio.to_thread(
-                    input,
-                    Fore.GREEN + "\nPress Enter to return to server list..." + Style.RESET_ALL
-                )
+                text_channels = [ch for ch in guild.channels if isinstance(ch, discord.TextChannel)]
+                for j, channel in enumerate(text_channels, start=1):
+                    print(Fore.YELLOW + f"{j}. " + Style.RESET_ALL + f"{channel.name} (ID: {channel.id})")
+
+                try:
+                    chan_selection = int(await asyncio.to_thread(
+                        input,
+                        Fore.GREEN + "\nChoose a channel number (0 to go back): " + Style.RESET_ALL
+                    ))
+                    if chan_selection == 0:
+                        continue
+                    if 1 <= chan_selection <= len(text_channels):
+                        channel = text_channels[chan_selection - 1]
+                        message = await asyncio.to_thread(input, Fore.YELLOW + "Enter announcement message: " + Style.RESET_ALL)
+                        perms = channel.permissions_for(guild.me)
+                        if not perms.send_messages:
+                            print(Fore.RED + "❌ Bot lacks permission to send messages in this channel." + Style.RESET_ALL)
+                        else:
+                            print(Fore.CYAN + f"Sending to {guild.name} -> {channel.name}" + Style.RESET_ALL)
+                            await channel.send(f"📢 Announcement:\n{message}")
+                            print(Fore.GREEN + "✅ Announcement sent successfully." + Style.RESET_ALL)
+                        await asyncio.to_thread(input, Fore.GREEN + "\nPress Enter to return to server list..." + Style.RESET_ALL)
+                    else:
+                        print(Fore.RED + "❌ Invalid channel selection." + Style.RESET_ALL)
+                except ValueError:
+                    print(Fore.RED + "❌ Invalid input." + Style.RESET_ALL)
             else:
-                print(Fore.RED + "❌ Invalid selection." + Style.RESET_ALL)
+                print(Fore.RED + "❌ Invalid server selection." + Style.RESET_ALL)
         except ValueError:
             print(Fore.RED + "❌ Invalid input." + Style.RESET_ALL)
 
@@ -130,7 +149,7 @@ async def main_menu():
         os.system("clear")
         banner()
         print(Fore.CYAN + "=== Discord Bot Menu ===" + Style.RESET_ALL)
-        print(Fore.YELLOW + "1." + Style.RESET_ALL + " List servers and channels")
+        print(Fore.YELLOW + "1." + Style.RESET_ALL + " List servers and channels (pick channel to announce)")
         print(Fore.YELLOW + "2." + Style.RESET_ALL + " Send announcement (by IDs)")
         print(Fore.YELLOW + "3." + Style.RESET_ALL + " Update from GitHub")
         print(Fore.YELLOW + "4." + Style.RESET_ALL + " Exit")
