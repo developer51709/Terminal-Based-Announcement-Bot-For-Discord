@@ -38,15 +38,14 @@ Built by [developer51709](https://github.com/developer51709), this bot emphasize
    python bot.py
 
 4. **Enter your bot token when prompted.**
-   (For security, consider storing your token in an environment variable or config file.)
 
 ---
 
 ## 🖥️ Menu Options
-- 1. List servers and channels → Browse your servers and see channel IDs
-- 2. Send announcement (by IDs) → Post a message to a specific channel
-- 3. Update from GitHub → Pull the latest changes
-- 4. Exit → Close the bot
+- **1. List servers and channels** → Browse your servers and see channel IDs
+- **2. Send announcement (by IDs)** → Post a message to a specific channel
+- **3. Update from GitHub** → Pull the latest changes
+- **4. Exit** → Close the bot
 
 ---
 
