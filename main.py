@@ -114,7 +114,8 @@ async def main_menu():
         elif choice == "4":
             print(Fore.CYAN + "Exiting…" + Style.RESET_ALL)
             shutdown_event.set()
-            await client.close()
+            if not client.is_closed():
+                await client.close()
             break
         elif choice == "5":
             await change_token()
@@ -140,6 +141,10 @@ async def run_bot():
                 break
             print(Fore.RED + f"⚠️ Connection lost: {e}. Reconnecting..." + Style.RESET_ALL)
             await asyncio.sleep(5)
+
+    # Ensure aiohttp connector is closed
+    if not client.is_closed():
+        await client.close()
 
     print(Fore.CYAN + "🔒 Bot shut down successfully." + Style.RESET_ALL)
 
