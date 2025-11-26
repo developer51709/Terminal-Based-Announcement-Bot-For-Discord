@@ -58,27 +58,27 @@ pip install -r requirements.txt
    ```bash
    python main.py
 
-4. On first run, you’ll be prompted for your bot token. It will be saved in config.json.
+4. On first run, you’ll be prompted for your bot token. It will be saved in `config.json`.
 
 ---
 
 📜 Menu Options
 
-1. List servers and channels → Browse servers, pick a channel, and send announcements  
-2. Send announcement (by IDs) → Post a message to a specific channel manually  
-3. Update from GitHub → Pull the latest changes  
-4. Exit → Close the bot gracefully  
-5. Change bot token → Update token stored in config.json
+1. **List servers and channels** → Browse servers, pick a channel, and send announcements  
+2. **Send announcement (by IDs)** → Post a message to a specific channel manually  
+3. **Update from GitHub** → Pull the latest changes  
+4. **Exit** → Close the bot gracefully  
+5. **Change bot token** → Update token stored in config.json
 
 ---
 
 🛡️ Notes
 
-- Make sure your bot has the Send Messages permission in the target channel.
+- Make sure your bot has the **Send Messages** permission in the target channel.
 - Invite your bot to servers using the OAuth2 URL from the Developer Portal.
 
 ---
 
 👨‍💻 Author
 
-Developed by [developer51709](https://github.com/developer51709)
+Designed by [developer51709](https://github.com/developer51709)
