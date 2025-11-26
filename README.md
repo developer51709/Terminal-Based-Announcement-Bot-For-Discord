@@ -42,10 +42,10 @@ Built by [developer51709](https://github.com/developer51709), this bot emphasize
 ---
 
 ## 🖥️ Menu Options
-- **1. List servers and channels** → Browse your servers and see channel IDs
-- **2. Send announcement (by IDs)** → Post a message to a specific channel
-- **3. Update from GitHub** → Pull the latest changes
-- **4. Exit** → Close the bot
+1. **List servers and channels** → Browse your servers and see channel IDs
+2. **Send announcement (by IDs)** → Post a message to a specific channel
+3. **Update from GitHub** → Pull the latest changes
+4. **Exit** → Close the bot
 
 ---
 
@@ -61,7 +61,6 @@ If permissions are missing, the bot will warn you before attempting to send.
 ## 📜 Future Improvements
 - Scheduled announcements (send at a specific time)
 - Rich embeds for styled announcements
-- Config file to store the bot token
 - Error logging
 - Multi‑channel broadcast (send the same announcement to multiple channels)
 
