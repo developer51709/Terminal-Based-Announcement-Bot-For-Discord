@@ -1,6 +1,7 @@
 import discord
 import os
 import subprocess
+import asyncio
 
 TOKEN = input("Enter your Discord bot token: ").strip()
 
@@ -28,75 +29,77 @@ def update():
     except Exception as e:
         print(f"Update failed: {e}")
 
-def menu():
+async def list_servers():
+    print("\nConnected. Servers:")
+    for i, guild in enumerate(client.guilds, start=1):
+        print(f"{i}. {guild.name} (ID: {guild.id})")
+
+    while True:
+        try:
+            selection = int(await asyncio.to_thread(input, "\nChoose a server number (0 to go back): "))
+            if selection == 0:
+                break
+            if 1 <= selection <= len(client.guilds):
+                guild = client.guilds[selection - 1]
+                print(f"\nChannels in {guild.name}:")
+                for channel in guild.channels:
+                    if isinstance(channel, discord.TextChannel):
+                        print(f"- {channel.name} (ID: {channel.id})")
+                await asyncio.to_thread(input, "\nPress Enter to return to server list...")
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Invalid input.")
+
+async def send_announcement():
+    try:
+        server_id = int(await asyncio.to_thread(input, "Enter Server ID: "))
+        channel_id = int(await asyncio.to_thread(input, "Enter Channel ID: "))
+        message = await asyncio.to_thread(input, "Enter announcement message: ")
+
+        guild = client.get_guild(server_id)
+        if guild:
+            channel = guild.get_channel(channel_id)
+            if channel:
+                print(f"Sending to {guild.name} -> {channel.name}")
+                await channel.send(f"📢 Announcement:\n{message}")
+                print("Announcement sent successfully.")
+            else:
+                print("Channel ID not found in that server.")
+        else:
+            print("Server ID not found.")
+    except ValueError:
+        print("Invalid input.")
+
+async def main_menu():
     while True:
         os.system("clear")
         banner()
         print("=== Discord Bot Menu ===")
-        print("1. Start bot (background connection)")
-        print("2. List servers and channels")
-        print("3. Send announcement (by IDs)")
-        print("4. Update from GitHub")
-        print("5. Exit")
-        choice = input("Select an option: ").strip()
+        print("1. List servers and channels")
+        print("2. Send announcement (by IDs)")
+        print("3. Update from GitHub")
+        print("4. Exit")
+
+        choice = await asyncio.to_thread(input, "Select an option: ")
 
         if choice == "1":
-            client.run(TOKEN)
-            break
+            await list_servers()
         elif choice == "2":
-            temp_client = discord.Client(intents=intents)
-
-            @temp_client.event
-            async def on_ready():
-                print("\nConnected. Servers:")
-                for i, guild in enumerate(temp_client.guilds, start=1):
-                    print(f"{i}. {guild.name} (ID: {guild.id})")
-
-                while True:
-                    try:
-                        selection = int(input("\nChoose a server number (0 to go back): ").strip())
-                        if selection == 0:
-                            break
-                        if 1 <= selection <= len(temp_client.guilds):
-                            guild = temp_client.guilds[selection - 1]
-                            print(f"\nChannels in {guild.name}:")
-                            for channel in guild.channels:
-                                if isinstance(channel, discord.TextChannel):
-                                    print(f"- {channel.name} (ID: {channel.id})")
-                        else:
-                            print("Invalid selection.")
-                    except ValueError:
-                        print("Invalid input.")
-                await temp_client.close()
-
-            temp_client.run(TOKEN)
+            await send_announcement()
         elif choice == "3":
-            server_id = int(input("Enter Server ID: ").strip())
-            channel_id = int(input("Enter Channel ID: ").strip())
-            message = input("Enter announcement message: ").strip()
-            temp_client = discord.Client(intents=intents)
-            @temp_client.event
-            async def on_ready():
-                guild = temp_client.get_guild(server_id)
-                if guild:
-                    channel = guild.get_channel(channel_id)
-                    if channel:
-                        print(f"Sending to {guild.name} -> {channel.name}")
-                        await channel.send(f"📢 Announcement:\n{message}")
-                        print("Announcement sent successfully.")
-                    else:
-                        print("Channel ID not found in that server.")
-                else:
-                    print("Server ID not found.")
-                await temp_client.close()
-            temp_client.run(TOKEN)
-        elif choice == "4":
             update()
-            input("\nPress Enter to return to menu...")
-        elif choice == "5":
+            await asyncio.to_thread(input, "\nPress Enter to return to menu...")
+        elif choice == "4":
             print("Exiting…")
+            await client.close()
             break
         else:
             print("Invalid option. Try again.")
 
-menu()
+@client.event
+async def on_ready():
+    print(f"\nBot connected as {client.user}")
+    await main_menu()
+
+asyncio.run(client.start(TOKEN))
